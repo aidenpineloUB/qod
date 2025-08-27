@@ -3,64 +3,41 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log/slog"
 	"os"
 )
 
-const version = "1.0.0"
+const appVersion = "1.0.0"
 
-type configuration struct {
-	port int
-	env  string
+type serverConfig struct {
+	port        int
+	environment string
 }
 
-type application struct {
-	config configuration
+type applicationDependencies struct {
+	config serverConfig
 	logger *slog.Logger
 }
 
-func printUB() string {
-	return "Hello, UB!"
-}
-
 func main() {
-	// Initialize configuration
-	cfg := loadConfig()
+	var settings serverConfig
+	
+	flag.IntVar(&settings.port, "port", 4000, "Server port")
+	flag.StringVar(&settings.environment, "env", "development",
+		"Environment(development|staging|production)")
+	flag.Parse()
 
-	// Initialize logger
-	logger := setupLogger(cfg.env)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	// Initialize application with dependencies
-	app := &application{
-		config: cfg,
+	appInstance := &applicationDependencies{
+		config: settings,
 		logger: logger,
 	}
 
-	// Print greeting
-	greeting := printUB()
-	fmt.Println(greeting)
-
-	// Run the application
-	err := app.serve()
+	// Use the serve method which properly handles routing
+	err := appInstance.serve()
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("server error", "error", err)
 		os.Exit(1)
 	}
-}
-
-// loadConfig reads configuration from command line flags
-func loadConfig() configuration {
-	var cfg configuration
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Environment(development|staging|production)")
-	flag.Parse()
-	return cfg
-}
-
-// setupLogger configures the application logger based on environment
-func setupLogger(env string) *slog.Logger {
-	var logger *slog.Logger
-	logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
-	return logger
 }

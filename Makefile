@@ -1,6 +1,5 @@
-## run/api: run the cmd/api application
-
-.PHONY: run/api
-run/api:
-	@echo '--Running application--'
-	@go run ./cmd/api
+## run: run the cmd/api application
+.PHONY: run
+run:
+	@echo  'Running application…'
+	@go run ./cmd/api -port=3000 -env=production
