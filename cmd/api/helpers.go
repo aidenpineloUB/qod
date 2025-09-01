@@ -32,17 +32,18 @@ func (a *applicationDependencies)writeJSON(w http.ResponseWriter,
     return nil
 }
 
-func (a *applicationDependencies)healthcheckHandler(w http.ResponseWriter,
-                                               r *http.Request) {
+func (app *applicationDependencies)healthcheckHandler(w http.ResponseWriter,r *http.Request) {
+   panic("Apples & Oranges")   // deliberate panic
    data := envelope {
                      "status": "available",
                      "system_info": map[string]string{
-                             "environment": a.config.environment,
+                             "environment": app.config.environment,
                              "version": appVersion,
                     },
    }
-   err := a.writeJSON(w, http.StatusOK, data, nil)
+   err := app.writeJSON(w, http.StatusOK, data, nil)
    if err != nil {
-    a.serverErrorResponse(w, r, err)
+    app.serverErrorResponse(w, r, err)
    }
 }
+

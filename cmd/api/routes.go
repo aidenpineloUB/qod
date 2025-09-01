@@ -8,17 +8,17 @@ import (
 )
 
 // routes specifies our routes (routes.go)
-func (app *applicationDependencies) routes() http.Handler {
+func (app *applicationDependencies)routes() http.Handler  {
+
    // setup a new router
    router := httprouter.New()
-   // handle 404
    router.NotFound = http.HandlerFunc(app.notFoundResponse)
-  // handle 405
    router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
-  
+   // setup routes
    router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
-   return router
+   return app.recoverPanic(router)      
+  
 }
 
 
