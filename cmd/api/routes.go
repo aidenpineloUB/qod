@@ -7,7 +7,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// routes specifies our routes (routes.go)
 func (app *applicationDependencies)routes() http.Handler  {
 
    // setup a new router
@@ -16,10 +15,14 @@ func (app *applicationDependencies)routes() http.Handler  {
    router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
    // setup routes
    router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+   router.HandlerFunc(http.MethodPost, "/v1/comments", app.createCommentHandler)
 
    return app.recoverPanic(router)      
   
 }
+
+
+
 
 
 

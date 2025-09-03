@@ -2,44 +2,23 @@
 
 package main
 
-// import (
-//   "fmt"
-//   "net/http"
-// )
-
-// func (a *applicationDependencies)healthcheckHandler(w http.ResponseWriter,r *http.Request) {
-//     fmt.Fprintln(w, "status: available")
-//     fmt.Fprintf(w, "environment: %s\n", a.config.environment)
-//     fmt.Fprintf(w, "version: %s\n", appVersion)
-
-//     }
+import(
+	"net/http"
+)
 
 
-
-
-
-
-
-
-
-
-
-// // package main
-
-// // import(
-// // 	"fmt"
-// // 	"net/http"
-// // )
-
-// // // healthcheckHandler gives us the health of the system (healthcheck.go)
-// // func (app *application) healthcheckHandler(w http.ResponseWriter, 
-// //                                            r *http.Request) {
-   
-// //      js := `{"status": "available", "environment": %q, "version": %q}`
-// //      js = fmt.Sprintf(js, app.config.env, version)
-// //      // Content-Type is text/plain by default
-// //      w.Header().Set("Content-Type", "application/json")
-// //      // Write the JSON as the HTTP response body.
-// //      w.Write([]byte(js))
-
-// // }
+func (appInstance *applicationDependencies) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
+	// Remove the deliberate panic for proper functioning
+	// panic("Apples & Oranges")   // deliberate panic
+	data := envelope{
+		"status": "available",
+		"system_info": map[string]string{
+			"environment": appInstance.config.environment,
+			"version":     appVersion,
+		},
+	}
+	err := appInstance.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		appInstance.serverErrorResponse(w, r, err)
+	}
+}

@@ -15,10 +15,7 @@ func (a *applicationDependencies)logError(r *http.Request, err error)  {
     
 }
 // send an error response in JSON
-func (a *applicationDependencies)errorResponseJSON(w http.ResponseWriter,
-                                                   r *http.Request, 
-                                                   status int, 
-                                                   message any)  {
+func (a *applicationDependencies)errorResponseJSON(w http.ResponseWriter,r *http.Request, status int, message any)  {
 
    errorData := envelope{"error": message}
    err := a.writeJSON(w, status, errorData, nil)
@@ -29,9 +26,7 @@ func (a *applicationDependencies)errorResponseJSON(w http.ResponseWriter,
 }
 
 // send an error response if our server messes up
-func (a *applicationDependencies)serverErrorResponse(w http.ResponseWriter,
-                                                     r *http.Request, 
-                                                     err error)  {
+func (a *applicationDependencies)serverErrorResponse(w http.ResponseWriter,r *http.Request, err error)  {
 
    // first thing is to log error message
    a.logError(r, err)
@@ -59,4 +54,12 @@ func (a *applicationDependencies)methodNotAllowedResponse(
    message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
 
    a.errorResponseJSON(w, r, http.StatusMethodNotAllowed, message)
+}
+
+// send an error response if our client messes up with a 400 (bad request)
+func (a *applicationDependencies)badRequestResponse(w http.ResponseWriter,
+                                                     r *http.Request,
+                                                     err error)  {
+
+      a.errorResponseJSON(w, r, http.StatusBadRequest, err.Error())
 }
