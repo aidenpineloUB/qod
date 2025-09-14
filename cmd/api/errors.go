@@ -36,8 +36,7 @@ func (a *applicationDependencies)serverErrorResponse(w http.ResponseWriter,r *ht
 }
 
 // send an error response if our client messes up with a 404
-func (a *applicationDependencies)notFoundResponse(w http.ResponseWriter,
-                                                     r *http.Request)  {
+func (a *applicationDependencies)notFoundResponse(w http.ResponseWriter,r *http.Request)  {
 
    // we only log server errors, not client errors
    // prepare a response to send to the client
@@ -45,9 +44,7 @@ func (a *applicationDependencies)notFoundResponse(w http.ResponseWriter,
    a.errorResponseJSON(w, r, http.StatusNotFound, message)
 }
 // send an error response if our client messes up with a 405
-func (a *applicationDependencies)methodNotAllowedResponse(
-                                                     w http.ResponseWriter,
-                                                     r *http.Request)  {
+func (a *applicationDependencies)methodNotAllowedResponse(w http.ResponseWriter,r *http.Request)  {
 
    // we only log server errors, not client errors
    // prepare a formatted response to send to the client
@@ -57,9 +54,12 @@ func (a *applicationDependencies)methodNotAllowedResponse(
 }
 
 // send an error response if our client messes up with a 400 (bad request)
-func (a *applicationDependencies)badRequestResponse(w http.ResponseWriter,
-                                                     r *http.Request,
-                                                     err error)  {
+func (a *applicationDependencies)badRequestResponse(w http.ResponseWriter,r *http.Request,err error)  {
 
       a.errorResponseJSON(w, r, http.StatusBadRequest, err.Error())
 }
+
+func (appInstance *applicationDependencies)failedValidationResponse(w http.ResponseWriter, r *http.Request,errors map[string]string) {
+     appInstance.errorResponseJSON(w, r, http.StatusUnprocessableEntity, errors)
+}
+

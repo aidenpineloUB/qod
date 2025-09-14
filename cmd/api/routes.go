@@ -17,7 +17,7 @@ func (app *applicationDependencies)routes() http.Handler  {
    router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
    router.HandlerFunc(http.MethodPost, "/v1/comments", app.createCommentHandler)
 
-   return app.recoverPanic(router)      
+   return app.recoverPanic(router)
   
 }
 
