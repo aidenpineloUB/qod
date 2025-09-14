@@ -7,7 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (app *applicationDependencies)routes() http.Handler  {
+func (app *applicationDependencies) routes()  http.Handler {
 
    // setup a new router
    router := httprouter.New()
@@ -16,7 +16,7 @@ func (app *applicationDependencies)routes() http.Handler  {
    // setup routes
    router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
    router.HandlerFunc(http.MethodPost, "/v1/comments", app.createCommentHandler)
-
+   router.HandlerFunc(http.MethodGet, "/v1/comments/:id", app.displayCommentHandler)
    return app.recoverPanic(router)
   
 }
