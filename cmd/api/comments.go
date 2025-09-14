@@ -10,43 +10,52 @@ import (
 
 func (appInstance *applicationDependencies) createCommentHandler(w http.ResponseWriter, r *http.Request) {
 	// create a struct to hold a comment
-	// we use struct tags[``] to make the names display in lowercase
+	// we use struct tags to make the names display in lowercase
 	var incomingData struct {
 		Content string `json:"content"`
 		Author  string `json:"author"`
 	}
-// perform the decoding
-   err := appInstance.readJSON(w, r, &incomingData)
-   if err != nil {
-       appInstance.badRequestResponse(w, r, err)
-       return
-   }
 
-// for now display the result
-   fmt.Fprintf(w, "+%v\n", incomingData)
-
-
-
-	
+	// perform the decoding
+	err := appInstance.readJSON(w, r, &incomingData)
+	if err != nil {
+		appInstance.badRequestResponse(w, r, err)
+		return
+	}
 
 	// Create a Comment struct using the data package
-// Copy the values from incomingData to a new Comment struct
-// At this point in our code the JSON is well-formed JSON so now
-// we will validate it using the Validator which expects a Comment
-comment := &data.Comment {
-    Content: incomingData.Content,
-    Author: incomingData.Author,
-}
-// Initialize a Validator instance
- v := validator.New()
-// Do the validation
-data.ValidateComment(v, comment)
-if !v.IsEmpty() {
-    appInstance.failedValidationResponse(w, r, v.Errors)  // implemented later
-    return
-}
+	// Copy the values from incomingData to a new Comment struct
+	comment := &data.Comment{
+		Content: incomingData.Content,
+		Author:  incomingData.Author,
+	}
 
-fmt.Fprintf(w, "%+v\n", incomingData)
-	// for now display the result
-	fmt.Fprintf(w, "Comment created: %+v\n", comment)
+	// Initialize a Validator instance and validate BEFORE processing
+	v := validator.New()
+	data.ValidateComment(v, comment)
+	if !v.IsEmpty() {
+		appInstance.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Add the comment to the database table
+	err = appInstance.commentModel.Insert(comment)
+	if err != nil {
+		appInstance.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// Set a Location header. The path to the newly created comment
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/comments/%d", comment.ID))
+
+	// Send a JSON response with 201 (new resource created) status code
+	envelope := map[string]interface{}{
+		"comment": comment,
+	}
+	err = appInstance.writeJSON(w, http.StatusCreated, envelope, headers)
+	if err != nil {
+		appInstance.serverErrorResponse(w, r, err)
+		return
+	}
 }
