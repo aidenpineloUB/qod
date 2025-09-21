@@ -20,9 +20,11 @@ func (app *applicationDependencies) routes()  http.Handler {
    router.HandlerFunc(http.MethodPatch,"/v1/comments/:id",app.updateCommentHandler)
    router.HandlerFunc(http.MethodDelete,"/v1/comments/:id", app.deleteCommentHandler)
    router.HandlerFunc(http.MethodGet,"/v1/comments",app.listCommentsHandler)
+   
 
+return app.recoverPanic(app.enableCORS(router)) 
+  
 
-   return app.recoverPanic(router)
   
 }
 

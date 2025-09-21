@@ -6,3 +6,5 @@ CREATE TABLE IF NOT EXISTS comments (
     author text NOT NULL,
     version integer NOT NULL DEFAULT 1
 );
+
+    

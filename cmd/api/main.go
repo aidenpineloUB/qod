@@ -12,6 +12,7 @@ import (
 	"time"
 	"github.com/aidenpineloUB/qod/internal/data"
 	_ "github.com/lib/pq"
+	"strings"
 )
 
 const appVersion = "1.0.0"
@@ -22,6 +23,10 @@ type serverConfig struct {
 	db struct {
 		dsn string
 	}
+	  cors struct {
+        trustedOrigins []string
+    }
+
 }
 
 type applicationDependencies struct {
@@ -35,7 +40,7 @@ func main() {
 	flag.IntVar(&settings.port, "port", 4000, "Server port")
 	flag.StringVar(&settings.environment, "env", "development",
 		"Environment(development|staging|production)")
-	flag.StringVar(&settings.db.dsn, "db-dsn", "postgres://quotes:quotes@localhost/quotes?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&settings.db.dsn, "db-dsn", "postgres://quotes:quotes@localhost/quotes?sslmode=require", "PostgreSQL DSN")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -71,6 +76,14 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
+
+	   flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)",
+              func(val string) error {
+                   settings.cors.trustedOrigins = strings.Fields(val)
+                   return nil
+              })
+   		flag.Parse()
+
 
 	// Use the serve method which properly handles routing
 	logger.Info("starting server", "address", apiServer.Addr, "environment", settings.environment)
