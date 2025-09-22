@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -93,22 +92,14 @@ func main() {
 		commentModel: data.CommentModel{DB: db},
 	}
 	
-	apiServer := &http.Server{
-		Addr:         fmt.Sprintf(":%d", settings.port),
-		Handler:      appInstance.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
-	}
-	
-	// Use the serve method which properly handles routing
-	logger.Info("starting server", "address", apiServer.Addr, "environment", settings.environment)
-	
-	err = apiServer.ListenAndServe()
-	logger.Error(err.Error())
-	os.Exit(1)
+    err = appInstance.serve()
+    if err != nil {
+        logger.Error(err.Error())
+        os.Exit(1)
+    }
 }
+
+
 
 func testDatabaseWrite(db *sql.DB) error {
 	// Create a simple test table
