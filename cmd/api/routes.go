@@ -22,7 +22,8 @@ func (app *applicationDependencies) routes()  http.Handler {
    router.HandlerFunc(http.MethodGet,"/v1/comments",app.listCommentsHandler)
    
 
-return app.recoverPanic(app.enableCORS(router)) 
+// return app.recoverPanic(app.enableCORS(router)) 
+return app.recoverPanic(app.rateLimit(router))
   
 
   

@@ -63,3 +63,9 @@ func (appInstance *applicationDependencies)failedValidationResponse(w http.Respo
      appInstance.errorResponseJSON(w, r, http.StatusUnprocessableEntity, errors)
 }
 
+func (a *applicationDependencies)rateLimitExceededResponse(w http.ResponseWriter, r *http.Request)  {
+
+    message := "rate limit exceeded"
+    a.errorResponseJSON(w, r, http.StatusTooManyRequests, message)
+}
+

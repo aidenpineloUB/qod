@@ -8,6 +8,9 @@ run/api:
 		-port=4000 \
 		-env=development \
 		-db-dsn=${COMMENTS_DB_DSN} \
+		-limiter-burst=5\
+        -limiter-rps=2\
+        -limiter-enabled=true\
 		-cors-trusted-origins="http://localhost:9000"
 
 ## db/psql: connect to the database using psql (terminal)
