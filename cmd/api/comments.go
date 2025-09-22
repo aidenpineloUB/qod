@@ -225,7 +225,7 @@ func (a *applicationDependencies) listCommentsHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	comments, err := a.commentModel.GetAll(
+	comments, metadata, err := a.commentModel.GetAll(
 		queryParametersData.Content,
 		queryParametersData.Author,
 		queryParametersData.Filters,
@@ -237,6 +237,7 @@ func (a *applicationDependencies) listCommentsHandler(w http.ResponseWriter, r *
 
 	envelope := map[string]interface{}{
 		"comments": comments,
+		"@metadata": metadata,
 	}
 	
 	err = a.writeJSON(w, http.StatusOK, envelope, nil)
