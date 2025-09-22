@@ -190,15 +190,15 @@ func (a *applicationDependencies) deleteCommentHandler(w http.ResponseWriter, r 
 }
 
 func (a *applicationDependencies) listCommentsHandler(w http.ResponseWriter, r *http.Request) {
-	// Create a struct to hold the query parameters
-	// Later on we will add fields for pagination and sorting (filters)
+	// Create struct to hold query parameters
 	var queryParametersData struct {
 		Content string
 		Author  string
+		data.Filters
 	}
-	// get the query parameters from the URL
-	queryParameters := r.URL.Query()
 
+	queryParameters := r.URL.Query()
+	
 	// Load the query parameters into our struct
 	queryParametersData.Content = a.getSingleQueryParameter(
 		queryParameters,
@@ -210,16 +210,35 @@ func (a *applicationDependencies) listCommentsHandler(w http.ResponseWriter, r *
 		"author",
 		"")
 
-	comments, err := a.commentModel.GetAllFiltered(
+	// Create a new validator instance
+	v := validator.New()
+	
+	queryParametersData.Filters.Page = a.getSingleIntegerParameter(
+		queryParameters, "page", 1, v)
+	queryParametersData.Filters.PageSize = a.getSingleIntegerParameter(
+		queryParameters, "page_size", 10, v)
+
+	// Check if our filters are valid
+	data.ValidateFilters(v, queryParametersData.Filters)
+	if !v.IsEmpty() {
+		a.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	comments, err := a.commentModel.GetAll(
 		queryParametersData.Content,
-		queryParametersData.Author)
+		queryParametersData.Author,
+		queryParametersData.Filters,
+	)
 	if err != nil {
 		a.serverErrorResponse(w, r, err)
 		return
 	}
+
 	envelope := map[string]interface{}{
 		"comments": comments,
 	}
+	
 	err = a.writeJSON(w, http.StatusOK, envelope, nil)
 	if err != nil {
 		a.serverErrorResponse(w, r, err)
